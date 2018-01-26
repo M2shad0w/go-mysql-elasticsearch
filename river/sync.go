@@ -317,7 +317,7 @@ func (r *River) makeReqColumnData(col *schema.TableColumn, value interface{}) in
 		if err == nil && f != nil {
 			return f
 		}
-	case schema.TYPE_DATETIME:
+	case schema.TYPE_DATETIME, schema.TYPE_TIMESTAMP:
 		switch v := value.(type) {
 		case string:
 			vt, _ := time.ParseInLocation(mysql.TimeFormat, string(v), time.Local)
@@ -526,7 +526,14 @@ func (r *River) getFieldValue(col *schema.TableColumn, fieldType string, value i
 		if str, ok := v.(string); ok {
 			fieldValue, _ = strconv.ParseFloat(str, 32)
 		} else {
-			fieldValue = v
+			vn := reflect.ValueOf(v)
+			switch vn.Kind() {
+			case reflect.Float32, reflect.Float64:
+				fieldValue = v
+			default:
+				fieldValue = 0.0
+			}
+
 		}
 	}
 
