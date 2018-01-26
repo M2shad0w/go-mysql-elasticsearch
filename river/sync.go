@@ -526,7 +526,14 @@ func (r *River) getFieldValue(col *schema.TableColumn, fieldType string, value i
 		if str, ok := v.(string); ok {
 			fieldValue, _ = strconv.ParseFloat(str, 32)
 		} else {
-			fieldValue = v
+			vn := reflect.ValueOf(v)
+			switch vn.Kind() {
+			case reflect.Float32, reflect.Float64:
+				fieldValue = v
+			default:
+				fieldValue = 0.0
+			}
+
 		}
 	}
 
