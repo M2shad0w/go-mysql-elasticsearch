@@ -5,6 +5,7 @@ import (
 
 	"github.com/juju/errors"
 	"github.com/siddontang/go-mysql/schema"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -40,8 +41,10 @@ func GetPKValues(table *schema.Table, row []interface{}) ([]interface{}, error) 
 	if len(indexes) == 0 {
 		return nil, errors.Errorf("table %s has no PK", table)
 	} else if len(table.Columns) != len(row) {
-		return nil, errors.Errorf("table %s has %d columns, but row data %v len is %d", table,
+		log.Errorf("table %s has %d columns, but row data %v len is %d", table,
 			len(table.Columns), row, len(row))
+		//		return nil, errors.Errorf("table %s has %d columns, but row data %v len is %d", table,
+		//			len(table.Columns), row, len(row))
 	}
 
 	values := make([]interface{}, 0, len(indexes))

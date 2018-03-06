@@ -9,12 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/juju/errors"
 	"github.com/siddontang/go-mysql-elasticsearch/elastic"
 	"github.com/siddontang/go-mysql/canal"
 	"github.com/siddontang/go-mysql/mysql"
 	"github.com/siddontang/go-mysql/replication"
 	"github.com/siddontang/go-mysql/schema"
+	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -501,6 +501,7 @@ func (r *River) doBulk(reqs []*elastic.BulkRequest) error {
 // get mysql field value and convert it to specific value to es
 func (r *River) getFieldValue(col *schema.TableColumn, fieldType string, value interface{}) interface{} {
 	var fieldValue interface{}
+	var err error
 	switch fieldType {
 	case fieldTypeList:
 		v := r.makeReqColumnData(col, value)
@@ -524,7 +525,10 @@ func (r *River) getFieldValue(col *schema.TableColumn, fieldType string, value i
 	case fieldTypeGeoLat, fieldTypeGeoLon:
 		v := r.makeReqColumnData(col, value)
 		if str, ok := v.(string); ok {
-			fieldValue, _ = strconv.ParseFloat(str, 32)
+			fieldValue, err = strconv.ParseFloat(str, 32)
+			if err != nil {
+				log.Error(err)
+			}
 		} else {
 			vn := reflect.ValueOf(v)
 			switch vn.Kind() {
