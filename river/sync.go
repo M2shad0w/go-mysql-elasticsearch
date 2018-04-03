@@ -274,7 +274,6 @@ func (r *River) makeUpdateRequest(rule *Rule, rows [][]interface{}) ([]*elastic.
 				req.Action = elastic.ActionIndex
 				req.Pipeline = rule.Pipeline
 			} else {
-				log.Info("simple rule ...")
 				r.makeUpdateReqData(req, rule, rows[i], rows[i+1])
 			}
 			r.st.UpdateNum.Add(1)
@@ -347,14 +346,8 @@ func (r *River) makeReqColumnData(col *schema.TableColumn, value interface{}) in
 		case string:
 			vt, _ := time.ParseInLocation(mysql.TimeFormat, string(v), time.Local)
 			return vt.Format(time.RFC3339)
-		default:
-			log.Info(v)
 		}
-
-	default:
-		log.Error("Not Match ...%s", reflect.TypeOf(col))
 	}
-
 	return value
 }
 
