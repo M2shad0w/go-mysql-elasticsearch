@@ -336,7 +336,6 @@ func (r *River) makeReqColumnData(col *schema.TableColumn, value interface{}) in
 	case schema.TYPE_DATETIME, schema.TYPE_TIMESTAMP, schema.TYPE_TIME:
 		switch v := value.(type) {
 		case string:
-			log.Info(v)
 			vt, _ := time.ParseInLocation(mysql.TimeFormat, string(v), time.Local)
 			return vt.Format(time.RFC3339)
 		default:
@@ -344,8 +343,7 @@ func (r *River) makeReqColumnData(col *schema.TableColumn, value interface{}) in
 		}
 
 	default:
-		log.Error("Not Match ...")
-
+		log.Error("Not Match ...%s", reflect.TypeOf(col))
 	}
 
 	return value
