@@ -2,6 +2,7 @@ package canal
 
 import (
 	"fmt"
+	//	"reflect"
 	"regexp"
 	"time"
 
@@ -14,10 +15,10 @@ import (
 )
 
 var (
-	expCreateTable = regexp.MustCompile("(?i)^CREATE\\sTABLE(\\sIF\\sNOT\\sEXISTS)?\\s`{0,1}(.*?)`{0,1}\\.{0,1}`{0,1}([^`\\.]+?)`{0,1}\\s.*")
-	expAlterTable  = regexp.MustCompile("(?i)^ALTER\\sTABLE\\s.*?`{0,1}(.*?)`{0,1}\\.{0,1}`{0,1}([^`\\.]+?)`{0,1}\\s.*")
-	expRenameTable = regexp.MustCompile("(?i)^RENAME\\sTABLE\\s.*?`{0,1}(.*?)`{0,1}\\.{0,1}`{0,1}([^`\\.]+?)`{0,1}\\s{1,}TO\\s.*?")
-	expDropTable   = regexp.MustCompile("(?i)^DROP\\sTABLE(\\sIF\\sEXISTS){0,1}\\s`{0,1}(.*?)`{0,1}\\.{0,1}`{0,1}([^`\\.]+?)`{0,1}(?:$|\\s)")
+	expCreateTable = regexp.MustCompile("(?im)CREATE\\sTABLE(\\sIF\\sNOT\\sEXISTS)?\\s`{0,1}(.*?)`{0,1}\\.{0,1}`{0,1}([^`\\.]+?)`{0,1}\\s.*")
+	expAlterTable  = regexp.MustCompile("(?im)ALTER\\sTABLE\\s.*?`{0,1}(.*?)`{0,1}\\.{0,1}`{0,1}([^`\\.]+?)`{0,1}\\s.*")
+	expRenameTable = regexp.MustCompile("(?im)RENAME\\sTABLE\\s.*?`{0,1}(.*?)`{0,1}\\.{0,1}`{0,1}([^`\\.]+?)`{0,1}\\s{1,}TO\\s.*?")
+	expDropTable   = regexp.MustCompile("(?im)DROP\\sTABLE(\\sIF\\sEXISTS){0,1}\\s`{0,1}(.*?)`{0,1}\\.{0,1}`{0,1}([^`\\.]+?)`{0,1}(?:$|\\s)")
 )
 
 func (c *Canal) startSyncer() (*replication.BinlogStreamer, error) {
@@ -66,6 +67,7 @@ func (c *Canal) runSyncBinlog() error {
 		// For RowsEvent, we can't save the position until meeting XIDEvent
 		// which tells the whole transaction is over.
 		// TODO: If we meet any DDL query, we must save too.
+		//		log.Info("type:", reflect.TypeOf(ev.Event))
 		switch e := ev.Event.(type) {
 		case *replication.RotateEvent:
 			pos.Name = string(e.NextLogName)
@@ -119,6 +121,7 @@ func (c *Canal) runSyncBinlog() error {
 				schema []byte
 				table  []byte
 			)
+			log.Infof("row data %v\n query data %v", e.Query, string(e.Query))
 			regexps := []regexp.Regexp{*expCreateTable, *expAlterTable, *expRenameTable, *expDropTable}
 			for _, reg := range regexps {
 				mb = reg.FindSubmatch(e.Query)

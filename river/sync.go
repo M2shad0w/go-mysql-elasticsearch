@@ -54,7 +54,10 @@ func (h *eventHandler) OnRotate(e *replication.RotateEvent) error {
 }
 
 func (h *eventHandler) OnTableChanged(schema, table string) error {
-	return nil
+	// 重新读取表结构
+	var err error
+	h.r.rules[ruleKey(schema, table)].TableInfo, err = h.r.canal.GetTable(schema, table)
+	return err
 }
 
 func (h *eventHandler) OnDDL(nextPos mysql.Position, _ *replication.QueryEvent) error {
@@ -262,6 +265,7 @@ func (r *River) makeUpdateRequest(rule *Rule, rows [][]interface{}) ([]*elastic.
 				req.Action = elastic.ActionIndex
 				req.Pipeline = rule.Pipeline
 			} else {
+				log.Info("simple rule ...")
 				r.makeUpdateReqData(req, rule, rows[i], rows[i+1])
 			}
 			r.st.UpdateNum.Add(1)
