@@ -571,7 +571,7 @@ func (r *River) getFieldValue(col *schema.TableColumn, fieldType string, value i
 		}
 
 	default:
-		log.Info("Not Match %s", fieldType)
+		//		log.Info("Not Match %s", fieldType)
 		fieldValue = nil
 	}
 
