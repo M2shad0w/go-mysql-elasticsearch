@@ -1,10 +1,10 @@
 package river
 
 import (
-	"strings"
 	"context"
 	"fmt"
 	"regexp"
+	"strings"
 	"sync"
 
 	"github.com/juju/errors"
