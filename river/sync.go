@@ -9,12 +9,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/juju/errors"
 	"github.com/siddontang/go-mysql-elasticsearch/elastic"
 	"github.com/siddontang/go-mysql/canal"
 	"github.com/siddontang/go-mysql/mysql"
 	"github.com/siddontang/go-mysql/replication"
 	"github.com/siddontang/go-mysql/schema"
-	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -329,12 +329,19 @@ func (r *River) makeReqColumnData(col *schema.TableColumn, value interface{}) in
 		if err == nil && f != nil {
 			return f
 		}
-	case schema.TYPE_DATETIME, schema.TYPE_TIMESTAMP:
+	case schema.TYPE_DATETIME, schema.TYPE_TIMESTAMP, schema.TYPE_TIME:
 		switch v := value.(type) {
 		case string:
+			log.Info(v)
 			vt, _ := time.ParseInLocation(mysql.TimeFormat, string(v), time.Local)
 			return vt.Format(time.RFC3339)
+		default:
+			log.Info(v)
 		}
+
+	default:
+		log.Error("Not Match ...")
+
 	}
 
 	return value
@@ -551,6 +558,10 @@ func (r *River) getFieldValue(col *schema.TableColumn, fieldType string, value i
 			}
 
 		}
+
+	default:
+		log.Info("Not Match %s", fieldType)
+		fieldValue = nil
 	}
 
 	if fieldValue == nil {
