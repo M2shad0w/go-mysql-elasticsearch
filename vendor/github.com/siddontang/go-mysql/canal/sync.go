@@ -122,7 +122,7 @@ func (c *Canal) runSyncBinlog() error {
 				schema []byte
 				table  []byte
 			)
-			log.Infof("row data %v\n query data %v", e.Query, string(e.Query))
+			//			log.Infof("row data %v\n query data %v", e.Query, string(e.Query))
 			regexps := []regexp.Regexp{*expCreateTable, *expAlterTable, *expRenameTable, *expDropTable}
 			for _, reg := range regexps {
 				mb = reg.FindSubmatch(e.Query)
